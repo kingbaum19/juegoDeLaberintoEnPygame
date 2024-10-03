@@ -1,0 +1,45 @@
+import random
+import pygame
+
+#inicio del pygame
+pygame.init()
+
+tamaño_celdas = 50
+
+#colores
+
+AZUL = (51, 97, 255)
+VERDE = (66, 255, 51)
+ROJO = (255, 51, 51)
+BLANCO = (255,255,255)
+NEGRO = (0,0,0)
+AMARILLO = (252, 255, 51 )
+
+#LABERINTO
+ 
+laberinto = [[1,1,1,1,1,1,1],
+             [1,0,0,0,0,0,3],
+             [1,0,4,1,1,1,1],
+             [1,0,0,0,0,0,1],
+             [1,0,0,0,0,0,1],
+             [1,1,1,1,1,0,1],
+             [1,2,0,0,0,0,1],
+             [1,1,1,1,1,1,1]]
+
+# dibujar el laberinto
+
+screen = pygame.display.set_mode((len(laberinto[1]) * tamaño_celdas,len(laberinto) * tamaño_celdas))
+pygame.display.set_caption("laberinto")
+
+#la forma del laberinto
+def draw_laberinto():
+    for row in range(len(laberinto)):
+        for col in range(len(laberinto[1])):
+            if laberinto[row][col] ==1:
+                pygame.draw.rect(screen, ROJO, (col * tamaño_celdas, row * tamaño_celdas, tamaño_celdas, tamaño_celdas))
+            elif laberinto[row][col] == 2:
+                pygame.draw.rect(screen, AZUL, (col * tamaño_celdas, row* tamaño_celdas, tamaño_celdas, tamaño_celdas))   
+            elif laberinto[row][col] == 3:  
+                pygame.draw.rect(screen, VERDE, (col * tamaño_celdas, row* tamaño_celdas, tamaño_celdas, tamaño_celdas))
+            elif laberinto[row][col] == 4:
+                pygame.draw.rect(screen, AMARILLO, (col * tamaño_celdas, row* tamaño_celdas, tamaño_celdas, tamaño_celdas))
