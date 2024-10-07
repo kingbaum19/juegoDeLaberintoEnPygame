@@ -10,7 +10,7 @@ pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
 TILE_SIZE = 32
 ALTO, ANCHO = 512, 512
-WIN = pygame.display.set_mode((ALTO,ANCHO))
+WIN = pygame.display.set_mode((ANCHO,ALTO))
 pygame.display.set_caption("Escape de Area 51")
 ICON = pygame.image.load(os.path.join('ASSETS','game_icon.png'))
 pygame.display.set_icon(ICON)
@@ -43,46 +43,46 @@ YAHOO_6 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO6.mp3'))
 PORTAL_SOUNDS = [YAHOO_1,YAHOO_2,YAHOO_3,YAHOO_4,YAHOO_5,YAHOO_6]
 
 PASOS = pygame.mixer.Sound(os.path.join('SONIDO', 'STEPS.WAV'))
-PARED = pygame.mixer.Sound(os.path.join('SONIDO', 'DSOOF.wav'))
 
-LAB = pygame.mixer.Sound(os.path.join('SONIDO', 'LAB.mp3'))
-CAR = pygame.mixer.Sound(os.path.join('SONIDO', 'car.mp3'))
-BLOOP = pygame.mixer.Sound(os.path.join('SONIDO', 'BLOOP.mp3'))
-FORT = pygame.mixer.Sound(os.path.join('SONIDO','FORT.mp3'))
-OST = [LAB,CAR,BLOOP, FORT]
-
+canciones = os.listdir("OST")
+cancion_actual = 0
 
 #~~~~~~~~~~~~~~~~~~~~~~~~EVENTOS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ALIEN_PORTAL = pygame.USEREVENT +1
 
 #~~~~~~~~~~~~~~~~~~~~GENERACIÓN DE LABERINTO~~~~~~~~~~~~~~~~~~
-maze = []
+def cargar_nivel(nivel):
+    maze = []
 
-for fila in range(FILAS):
-    filas = [0] * COLUMNAS
-    maze.append(filas)
+    for fila in range(FILAS):
+        filas = [0] * COLUMNAS
+        maze.append(filas)
 
-with open("NIVELES/test_level2.csv", newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for i, fila in enumerate(reader):
-        for j, columna in enumerate(fila):
-            maze[i][j] = int(columna)
+    with open(nivel, newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for i, fila in enumerate(reader):
+            for j, columna in enumerate(fila):
+                maze[i][j] = int(columna)
 
-for fila in range(len(maze)): #Casilla en donde aparecerá el jugador
-    for columna in range(len(maze[fila])):
-        if maze[fila][columna] == 3:
-            alien.x = columna * TILE_SIZE
-            alien.y = fila * TILE_SIZE
+    for fila in range(len(maze)): #Casilla en donde aparecerá el jugador
+        for columna in range(len(maze[fila])):
+            if maze[fila][columna] == 3:
+                alien.x = columna * TILE_SIZE
+                alien.y = fila * TILE_SIZE
+    return maze
+
+csv_files = os.listdir("NIVELES")
+nivel_actual = 0
+maze = cargar_nivel(os.path.join("NIVELES", csv_files[nivel_actual]))
+
 
 #~~~~~~~~~~~~~~~~~~~~FUNCIONES DEL JUEGO~~~~~~~~~~~~~~~~~~
-
 def draw_mensaje(texto):
     draw_text = MENSAJE.render(texto,1,(51,238,34))
     WIN.blit(draw_text,(ANCHO/2 - draw_text.get_width()/
                         2, ALTO/2 - draw_text.get_height()/2))
     pygame.display.update()
     pygame.time.delay(5000)
-    pygame.quit()
 
 def draw_grid():
     for line in range(0,16):
@@ -103,14 +103,13 @@ def alien_movement(keys_pressed, alien):
     if keys_pressed[pygame.K_w] or keys_pressed[pygame.K_s] or keys_pressed[pygame.K_a] or keys_pressed[pygame.K_d]:
         PASOS.play()
     casilla = CASILLAS[maze[fila][columna]]
-    if casilla in [SUELO,PORTAL,COIN]:
+    if casilla in [SUELO,PORTAL]:
         alien.x = columna * TILE_SIZE
         alien.y = fila * TILE_SIZE
-    if casilla == VOID:
-        PARED.play()
     if casilla == PORTAL:
         pygame.event.post(pygame.event.Event(ALIEN_PORTAL))
         print ("Ha ganado")
+
 
 def draw_window(alien):
     for fila in range(len(maze)):
@@ -119,13 +118,15 @@ def draw_window(alien):
             y = fila * TILE_SIZE
             casilla = CASILLAS[maze[fila][columna]]
             WIN.blit(casilla,(x,y))
+
     WIN.blit(ALIEN,(alien.x, alien.y))
-    draw_grid()
     pygame.display.update()
 
+
 def main ():
-    random_song = random.choice(OST)
-    random_song.play(-1)
+    global nivel_actual, maze, cancion_actual
+    pygame.mixer.music.load(os.path.join("OST", canciones[cancion_actual]))
+    pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
     run = True
     while run:
@@ -133,15 +134,23 @@ def main ():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-        
+                
             if event.type == ALIEN_PORTAL:
                 texto_pantalla = "¡Llegaste al portal!"
-                random_song.stop()
+                pygame.mixer.music.pause()
                 random_sound = random.choice(PORTAL_SOUNDS)
                 random_sound.play()
                 draw_mensaje(texto_pantalla)
+                nivel_actual += 1
+                cancion_actual +=1
+                if nivel_actual < len(csv_files):
+                    maze = cargar_nivel(os.path.join("NIVELES", csv_files[nivel_actual]))
+                    pygame.mixer.music.load(os.path.join("OST", canciones[cancion_actual]))
+                    pygame.mixer.music.play(-1)
+                else:
+                    draw_mensaje("¡Has completado todos los niveles!")
+                    pygame.quit()
                 break
-                
 
         keys_pressed = pygame.key.get_pressed()
         alien_movement(keys_pressed, alien)
