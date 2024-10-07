@@ -147,9 +147,6 @@ def main ():
                     maze = cargar_nivel(os.path.join("NIVELES", csv_files[nivel_actual]))
                     pygame.mixer.music.load(os.path.join("OST", canciones[cancion_actual]))
                     pygame.mixer.music.play(-1)
-                    if not maze:  # Verificar que el laberinto se haya cargado correctamente
-                        print("Error: El laberinto está vacío.")
-                        run = False  # Termina el juego si hay un error
                 else:
                     draw_mensaje("¡Has completado todos los niveles!")
                     pygame.quit()  # Salimos del bucle si se completan todos los niveles
