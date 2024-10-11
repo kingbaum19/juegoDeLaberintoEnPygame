@@ -11,7 +11,8 @@ pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
 TILE_SIZE = 32
 ALTO, ANCHO = 512, 512
-WIN = pygame.display.set_mode((ANCHO,ALTO), pygame.SCALED | pygame.RESIZABLE)
+WIN = pygame.display.set_mode((ANCHO,ALTO), pygame.SCALED | pygame.RESIZABLE) #pygame.SCALED es para que aumente el tamaño de la ventana del juego dependiendo de la resolución de nuestro monitor
+                                                                              #pygame.RESIZABLE es para la ventana del juego se muestre en tamaño completo y en modo ventana
 pygame.display.set_caption("Escape de Area 51")
 ICON = pygame.image.load(os.path.join('ASSETS','game_icon.png'))
 pygame.display.set_icon(ICON)
@@ -27,7 +28,7 @@ SUELO = pygame.image.load(os.path.join('ASSETS','SUELO.png'))
 SPAWN = pygame.image.load(os.path.join('ASSETS','SPAWN.png'))
 COIN = pygame.image.load(os.path.join('ASSETS','GHERKIN_ZONE.png'))
 SUEL0 = pygame.image.load(os.path.join('ASSETS','FLOOR.png'))
-CASILLAS = [SUELO,VOID,PORTAL,SPAWN,COIN,SUEL0]
+CASILLAS = [SUELO,VOID,PORTAL,SPAWN,COIN,SUEL0] #SUEL0 es la superficie que activa la condición del screamer
 
 FILAS = 16
 COLUMNAS = 16
@@ -49,8 +50,8 @@ gherkin = [my_spritesheet.parse_sprite('frame_0.png'),my_spritesheet.parse_sprit
            my_spritesheet.parse_sprite('frame_40.png'),my_spritesheet.parse_sprite('frame_41.png'),my_spritesheet.parse_sprite('frame_42.png'),my_spritesheet.parse_sprite('frame_43.png')]
 gherkin_index = 0
 
-warrior = pygame.transform.scale(pygame.image.load(os.path.join('ASSETS','warrior.png')), (ANCHO,ALTO))
-scientific = pygame.image.load(os.path.join('ASSETS', 'SCIENCE.png'))
+warrior = pygame.transform.scale(pygame.image.load(os.path.join('ASSETS','warrior.png')), (ANCHO,ALTO)) #Esta es la imagen del screamer
+scientific = pygame.image.load(os.path.join('ASSETS', 'SCIENCE.png')) #Esta es la pantalla de muerte
 
 #~~~~~~~~~~~~~~~~~~~~EFECTOS DE SONIDO~~~~~~~~~~~~~~~~~~~~~~~~~~
 YAHOO_1 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO1.mp3'))
@@ -59,7 +60,7 @@ YAHOO_3 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO3.mp3'))
 YAHOO_4 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO4.mp3'))
 YAHOO_5 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO5.mp3'))
 YAHOO_6 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO6.mp3'))
-YAHOO_7 = pygame.mixer.Sound(os.path.join('SONIDO', 'YAHOO7.mp3'))
+YAHOO_7 = pygame.mixer.Sound(os.path.join('SONIDO', 'YAHOO7.mp3')) #El efecto de sonido del screamer
 YAHOO_8 = pygame.mixer.Sound(os.path.join('SONIDO','YAHOO8.mp3'))
 PORTAL_SOUNDS = [YAHOO_1,YAHOO_2,YAHOO_3,YAHOO_4,YAHOO_5,YAHOO_6]
 
@@ -70,8 +71,8 @@ canciones = os.listdir("OST")
 cancion_actual = 0
 
 #~~~~~~~~~~~~~~~~~~~~~~~~EVENTOS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ALIEN_PORTAL = pygame.USEREVENT +1
-ALIEN_FINAL = pygame.USEREVENT +2
+ALIEN_PORTAL = pygame.USEREVENT +1 #El Evento en donde se activa el texto el pantalla y la transición de niveles
+ALIEN_FINAL = pygame.USEREVENT +2 #El Evento en donde se activa el screamer
 
 #~~~~~~~~~~~~~~~~~~~~GENERACIÓN DE LABERINTO~~~~~~~~~~~~~~~~~~
 def cargar_nivel(nivel):
@@ -92,14 +93,14 @@ def cargar_nivel(nivel):
             if maze[fila][columna] == 3:
                 alien.x = columna * TILE_SIZE
                 alien.y = fila * TILE_SIZE
-            if maze[fila][columna] == 2:
+            if maze[fila][columna] == 2: #Casilla en donde aparecerá el sprite del pepino
                 my_spritesheet.rect.x = columna * TILE_SIZE
                 my_spritesheet.rect.y = fila * TILE_SIZE            
     return maze
-
+#Utilizamos archivos .csv para los diseños de niveles porque el programa Tiled Map Editor nos facilita la creación de niveles exportando el resultado final como archivo .csv
 csv_files = os.listdir("NIVELES")
 nivel_actual = 0
-maze = cargar_nivel(os.path.join("NIVELES", csv_files[nivel_actual]))
+maze = cargar_nivel(os.path.join("NIVELES", csv_files[nivel_actual])) #Se va a formar un laberinto dependiendo de los contenidos de un archivo de la carpeta "NIVELES", y el juego va a formarlos según el valor del iterador
 
 #~~~~~~~~~~~~~~~~~~~~FUNCIONES DEL JUEGO~~~~~~~~~~~~~~~~~~
 
@@ -150,7 +151,7 @@ def draw_window(alien,gherkin, gherkin_index):
     WIN.blit(gherkin[gherkin_index], (my_spritesheet.rect.x,my_spritesheet.rect.y))
     pygame.display.update()
 
-def draw_warrior(warrior,cientific):
+def draw_warrior(warrior,cientific): #Esta función es lo que hará que el screamer se muestre en pantalla acompañado de su efecto de sonido
     pygame.mixer.music.pause()
     WIN.fill((0,0,0))
     WIN.blit(warrior,(0,0))
@@ -166,13 +167,13 @@ def draw_warrior(warrior,cientific):
 
 def main ():
     global nivel_actual, maze, cancion_actual, gherkin_index
-    pygame.mixer.music.load(os.path.join("OST", canciones[cancion_actual]))
+    pygame.mixer.music.load(os.path.join("OST", canciones[cancion_actual])) #El juego va a reproducir música de un archivo de la carpeta OST según el valor del iterador
     pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
     run = True
     while run:
         clock.tick(FPS)
-        gherkin_index = (gherkin_index + 1) % len(gherkin)
+        gherkin_index = (gherkin_index + 1) % len(gherkin) #Esta parte del código hará que el pepino reproduzca sus frames de animación 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -183,8 +184,8 @@ def main ():
                 random_sound = random.choice(PORTAL_SOUNDS)
                 random_sound.play()
                 draw_mensaje(texto_pantalla)
-                nivel_actual += 1
-                cancion_actual +=1
+                nivel_actual += 1 #El iterador pasa al siguiente elemento de la carpeta "NIVELES"
+                cancion_actual +=1 #El iterador pasa al siguiente elemento de la carpeta "OST"
                 if nivel_actual < len(csv_files):
                     maze = cargar_nivel(os.path.join("NIVELES", csv_files[nivel_actual]))
                     pygame.mixer.music.load(os.path.join("OST", canciones[cancion_actual]))
